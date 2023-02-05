@@ -1,0 +1,9 @@
+progress::-webkit-progress-value.failed {
+    background: red;
+}
+progress::-moz-progress-bar.failed {
+    background: red;
+}
+progress.failed {
+    color: red;
+}
