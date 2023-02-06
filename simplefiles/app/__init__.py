@@ -10,7 +10,6 @@ from typing import AsyncIterator, Awaitable, Callable, TypeVar
 
 import aiofiles
 from aiohttp import web
-from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -134,8 +133,6 @@ def parse_content_type(string: str) -> tuple[MIMEType, MIMESubtype]:
 
 async def store(request: web.Request, session: AsyncSession) -> web.StreamResponse:
     log_request(request)
-    # r = await session.execute(select("*").select_from(text("sqlite_master")))
-    # print(*r.fetchall(), sep="\n")
     parts = await request.multipart()
     async for part in parts:
         print()
