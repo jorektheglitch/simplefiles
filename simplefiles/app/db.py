@@ -1,12 +1,14 @@
 from dataclasses import dataclass
 from datetime import timedelta as td
 from pathlib import Path
+from typing import ClassVar
 
 from sqlalchemy import Column, ForeignKey, Table
 from sqlalchemy import CheckConstraint, ForeignKeyConstraint
 from sqlalchemy import DateTime, Enum, Integer, String
 from sqlalchemy import orm
 from sqlalchemy import join
+from sqlalchemy.sql import Selectable
 from sqlalchemy.types import TypeDecorator
 from sqlalchemy.engine import Dialect
 
@@ -77,11 +79,11 @@ audios = Table(
     "audios",
     registry.metadata,
     Column("audio_id", Integer, primary_key=True),
-    Column("audio_type", Enum(MIMEType), default=MIMEType.AUDIO),
+    Column("media_type", Enum(MIMEType), default=MIMEType.AUDIO),
     Column("subtype", Enum(AudiosMIME)),
     Column("length", MediaLength),
     ForeignKeyConstraint(
-        ("audio_id", "audio_type"),
+        ("audio_id", "media_type"),
         (medias.c.media_id, medias.c.media_type)
     ),
     CheckConstraint(
@@ -93,11 +95,11 @@ images = Table(
     "images",
     registry.metadata,
     Column("image_id", Integer, primary_key=True),
-    Column("image_type", Enum(MIMEType), default=MIMEType.IMAGE),
+    Column("media_type", Enum(MIMEType), default=MIMEType.IMAGE),
     Column("subtype", Enum(ImagesMIME)),
     Column("preview_id", Integer),
     ForeignKeyConstraint(
-        ("image_id", "image_type"),
+        ("image_id", "media_type"),
         (medias.c.media_id, medias.c.media_type)
     ),
     CheckConstraint(
@@ -109,7 +111,12 @@ images = Table(
 @registry.mapped
 @dataclass
 class Media(entities.Media):
-    __table__ = medias
+    __table__: ClassVar[Selectable] = medias
+
+    __mapper_args__ = {
+        "polymorphic_identity": "medias",
+        "polymorphic_on": "media_type",
+    }
 
 
 @registry.mapped
@@ -120,8 +127,11 @@ class FileInfo(entities.FileInfo):
 
 @registry.mapped
 @dataclass
-class Image(entities.Image):
+class Image(Media, entities.Image):
     __table__ = join(medias, images)
+    __mapper_args__ = {
+        "polymorphic_identity": "images",
+    }
 
     file_hash: str
 
@@ -139,8 +149,11 @@ class Image(entities.Image):
 
 @registry.mapped
 @dataclass
-class Audio(entities.Audio):
+class Audio(Media, entities.Audio):
     __table__ = join(medias, audios)
+    __mapper_args__ = {
+        "polymorphic_identity": "audios",
+    }
 
     file_hash: str
 
