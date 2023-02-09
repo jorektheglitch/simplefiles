@@ -65,18 +65,6 @@ class Video(Media):
 class Audio(Media):
     type: ClassVar[Literal[MIMEType.AUDIO]] = MIMEType.AUDIO
     subtype: AudiosMIME
-    length: td | None
-
-
-@dataclass
-class Animation(Media):
-    type: ClassVar[Literal[MIMEType.VIDEO]] = MIMEType.VIDEO
-    subtype: Literal[VideosMIME.WEBM]
-    resolution: Resolution | None
-
-    @property
-    @abstractmethod
-    async def preview(self) -> Preview | None: ...
 
 
 class File(Media):
