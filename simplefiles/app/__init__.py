@@ -155,20 +155,20 @@ async def store(request: web.Request, session: AsyncSession) -> web.StreamRespon
                 file_hash = tmp.hash.hex()
                 file_path = Path.cwd() / "tmp" / file_hash
                 await tmp.materialize(file_path, exists_ok=True)
-                file = FileInfo(file_path, file_hash, tmp.size)
-                session.add(file)
-                media: entities.Media
-                match mime_type:
-                    case MIMEType.APPLICATION: ...
-                    case MIMEType.AUDIO: media = Audio(file_name, file_hash, mime_subtype, utcnow())
-                    case MIMEType.CHEMICAL: ...
-                    case MIMEType.FONT: ...
-                    case MIMEType.IMAGE: media = Image(file_name, file_hash, mime_subtype, utcnow())
-                    case MIMEType.VIDEO: media = Video(file_name, file_hash, mime_subtype, utcnow())
-                try:
-                    session.add(media)
-                finally:
-                    await session.commit()
+            file = FileInfo(file_path, file_hash, tmp.size)
+            session.add(file)
+            media: entities.Media
+            match mime_type:
+                case MIMEType.APPLICATION: ...
+                case MIMEType.AUDIO: media = Audio(file_name, file_hash, mime_subtype, utcnow())
+                case MIMEType.CHEMICAL: ...
+                case MIMEType.FONT: ...
+                case MIMEType.IMAGE: media = Image(file_name, file_hash, mime_subtype, utcnow())
+                case MIMEType.VIDEO: media = Video(file_name, file_hash, mime_subtype, utcnow())
+            try:
+                session.add(media)
+            finally:
+                await session.commit()
             print(f"\tHash: {tmp.hash.hex()}\n\tSize: {tmp.size}")
         if part.filename == "7oYT8NfEETQ.jpg":
             raise RuntimeError
