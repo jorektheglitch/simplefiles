@@ -133,8 +133,6 @@ class Image(Media, entities.Image):
         "polymorphic_identity": "images",
     }
 
-    file_hash: str
-
     @property
     async def file_info(self) -> entities.FileInfo:
         return None  # type: ignore
@@ -154,8 +152,6 @@ class Audio(Media, entities.Audio):
     __mapper_args__ = {
         "polymorphic_identity": "audios",
     }
-
-    file_hash: str
 
     @property
     async def file_info(self) -> entities.FileInfo:

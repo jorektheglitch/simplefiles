@@ -20,6 +20,7 @@ T = TypeVar("T")
 @dataclass
 class Media(ABC):
     name: str  # displayed file name
+    file_hash: str
     type: ClassVar[MIMEType]  # MIME type
     subtype: MIMESubtype  # MIME subtype
     loaded_at: dt
