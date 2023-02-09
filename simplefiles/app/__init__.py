@@ -16,7 +16,7 @@ from sqlalchemy.orm import sessionmaker
 from simplefiles.config import Config
 from simplefiles.core import entities
 from simplefiles.core.entities import TempFile, MIMEType, MIMESubtype, AudiosMIME, ImagesMIME, VideosMIME
-from .db import Audio, Image, FileInfo
+from .db import Audio, Image, Video, FileInfo
 from .db import registry
 
 
@@ -164,7 +164,7 @@ async def store(request: web.Request, session: AsyncSession) -> web.StreamRespon
                     case MIMEType.CHEMICAL: ...
                     case MIMEType.FONT: ...
                     case MIMEType.IMAGE: media = Image(file_name, file_hash, mime_subtype, utcnow())
-                    case MIMEType.VIDEO: ...
+                    case MIMEType.VIDEO: media = Video(file_name, file_hash, mime_subtype, utcnow())
                 try:
                     session.add(media)
                 finally:

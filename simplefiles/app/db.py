@@ -12,7 +12,7 @@ from sqlalchemy.sql import Selectable
 from sqlalchemy.types import TypeDecorator
 from sqlalchemy.engine import Dialect
 
-from simplefiles.core._types import AudiosMIME, ImagesMIME, MIMEType
+from simplefiles.core._types import AudiosMIME, ImagesMIME, VideosMIME, MIMEType
 from simplefiles.core import entities
 
 
@@ -124,6 +124,23 @@ images = Table(
     )
 )
 
+videos = Table(
+    "videos",
+    registry.metadata,
+    Column("video_id", Integer, primary_key=True),
+    Column("media_type", Enum(MIMEType), default=MIMEType.VIDEO),
+    Column("subtype", Enum(VideosMIME)),
+    Column("resolution", MediaResolution),
+    Column("length", MediaLength),
+    ForeignKeyConstraint(
+        ("video_id", "media_type"),
+        (medias.c.media_id, medias.c.media_type)
+    ),
+    CheckConstraint(
+        "subtype IN ('MP4', 'MPEG', 'OGG')"
+    )
+)
+
 
 @registry.mapped
 @dataclass
@@ -172,6 +189,26 @@ class Audio(Media, entities.Audio):
 
     @property
     async def file_info(self) -> entities.FileInfo:
+        return None  # type: ignore
+
+    def __post_init__(self) -> None:
+        self.media_type = self.type
+
+
+@registry.mapped
+@dataclass
+class Video(Media, entities.Video):
+    __table__ = join(medias, videos)
+    __mapper_args__ = {
+        "polymorphic_identity": "videos",
+    }
+
+    @property
+    async def file_info(self) -> entities.FileInfo:
+        return None  # type: ignore
+
+    @property
+    async def preview(self) -> entities.Preview:
         return None  # type: ignore
 
     def __post_init__(self) -> None:
