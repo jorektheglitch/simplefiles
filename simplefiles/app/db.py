@@ -54,6 +54,22 @@ class MediaLength(TypeDecorator[td]):
         return td(days=int(days), seconds=total_seconds)
 
 
+class MediaResolution(TypeDecorator[entities.Resolution]):
+    impl = String
+    cache_ok = True
+
+    def process_bind_param(self, value: entities.Resolution | None, dialect: Dialect) -> str | None:
+        if value is None:
+            return None
+        return f"{value.width}x{value.height}"
+
+    def process_result_value(self, value: str | None, dialect: Dialect) -> entities.Resolution | None:
+        if value is None:
+            return None
+        width, height = map(int, value.split("x"))
+        return entities.Resolution(width, height)
+
+
 registry = orm.registry()
 
 
