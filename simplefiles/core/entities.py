@@ -42,7 +42,7 @@ class Resolution(NamedTuple):
 class Image(Media):
     type: ClassVar[Literal[MIMEType.IMAGE]] = MIMEType.IMAGE
     subtype: ImagesMIME
-    resolution: Resolution | None
+    resolution: Resolution | None = None
 
     @property
     @abstractmethod
@@ -53,8 +53,8 @@ class Image(Media):
 class Video(Media):
     type: ClassVar[Literal[MIMEType.VIDEO]] = MIMEType.VIDEO
     subtype: VideosMIME
-    resolution: Resolution | None
-    length: td | None
+    resolution: Resolution | None = None
+    length: td | None = None
 
     @property
     @abstractmethod
@@ -65,6 +65,10 @@ class Video(Media):
 class Audio(Media):
     type: ClassVar[Literal[MIMEType.AUDIO]] = MIMEType.AUDIO
     subtype: AudiosMIME
+    length: td | None = None
+    artist: str | None = None
+    album: str | None = None
+    track: str | None = None
 
 
 class File(Media):
