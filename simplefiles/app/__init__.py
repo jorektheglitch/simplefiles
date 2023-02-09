@@ -10,6 +10,7 @@ from typing import AsyncIterator, Awaitable, Callable, TypeVar
 
 import aiofiles
 from aiohttp import web
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -156,7 +157,12 @@ async def store(request: web.Request, session: AsyncSession) -> web.StreamRespon
                 file_path = Path.cwd() / "tmp" / file_hash
                 await tmp.materialize(file_path, exists_ok=True)
             file = FileInfo(file_path, file_hash, tmp.size)
-            session.add(file)
+            try:
+                session.add(file)
+                await session.commit()
+            except IntegrityError:
+                await session.rollback()
+                file = await session.get(FileInfo, file_hash)  # type: ignore
             media: entities.Media
             match mime_type:
                 case MIMEType.APPLICATION: ...
