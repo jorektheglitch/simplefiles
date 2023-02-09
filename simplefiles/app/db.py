@@ -113,6 +113,7 @@ images = Table(
     Column("image_id", Integer, primary_key=True),
     Column("media_type", Enum(MIMEType), default=MIMEType.IMAGE),
     Column("subtype", Enum(ImagesMIME)),
+    Column("resolution", MediaResolution),
     Column("preview_id", Integer),
     ForeignKeyConstraint(
         ("image_id", "media_type"),
