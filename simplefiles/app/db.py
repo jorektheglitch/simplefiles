@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import timedelta as td
 from pathlib import Path
-from typing import ClassVar
+from typing import Any, ClassVar
 
 from sqlalchemy import Column, ForeignKey, Table
 from sqlalchemy import CheckConstraint, ForeignKeyConstraint
@@ -147,8 +147,8 @@ videos = Table(
 class Media(entities.Media):
     __table__: ClassVar[Selectable] = medias
 
-    __mapper_args__ = {
-        "polymorphic_identity": "medias",
+    __mapper_args__: dict[str, Any] = {
+        # "polymorphic_identity": "medias",
         "polymorphic_on": "media_type",
     }
 
@@ -164,12 +164,8 @@ class FileInfo(entities.FileInfo):
 class Image(Media, entities.Image):
     __table__ = join(medias, images)
     __mapper_args__ = {
-        "polymorphic_identity": "images",
+        "polymorphic_identity": MIMEType.IMAGE,
     }
-
-    @property
-    async def file_info(self) -> entities.FileInfo:
-        return None  # type: ignore
 
     @property
     async def preview(self) -> entities.Preview | None:
@@ -177,6 +173,7 @@ class Image(Media, entities.Image):
 
     def __post_init__(self) -> None:
         self.media_type = self.type
+        self.file_hash = self.info.hash
 
 
 @registry.mapped
@@ -184,15 +181,12 @@ class Image(Media, entities.Image):
 class Audio(Media, entities.Audio):
     __table__ = join(medias, audios)
     __mapper_args__ = {
-        "polymorphic_identity": "audios",
+        "polymorphic_identity": MIMEType.AUDIO,
     }
-
-    @property
-    async def file_info(self) -> entities.FileInfo:
-        return None  # type: ignore
 
     def __post_init__(self) -> None:
         self.media_type = self.type
+        self.file_hash = self.info.hash
 
 
 @registry.mapped
@@ -200,12 +194,8 @@ class Audio(Media, entities.Audio):
 class Video(Media, entities.Video):
     __table__ = join(medias, videos)
     __mapper_args__ = {
-        "polymorphic_identity": "videos",
+        "polymorphic_identity": MIMEType.VIDEO,
     }
-
-    @property
-    async def file_info(self) -> entities.FileInfo:
-        return None  # type: ignore
 
     @property
     async def preview(self) -> entities.Preview:
@@ -213,3 +203,4 @@ class Video(Media, entities.Video):
 
     def __post_init__(self) -> None:
         self.media_type = self.type
+        self.file_hash = self.info.hash

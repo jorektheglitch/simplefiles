@@ -20,14 +20,10 @@ T = TypeVar("T")
 @dataclass
 class Media(ABC):
     name: str  # displayed file name
-    file_hash: str
+    info: FileInfo
     type: ClassVar[MIMEType]  # MIME type
     subtype: MIMESubtype  # MIME subtype
     loaded_at: dt
-
-    @property
-    @abstractmethod
-    async def file_info(self) -> FileInfo: ...
 
 
 M = TypeVar("M", bound=Media)

@@ -166,11 +166,11 @@ async def store(request: web.Request, session: AsyncSession) -> web.StreamRespon
             media: entities.Media
             match mime_type:
                 case MIMEType.APPLICATION: ...
-                case MIMEType.AUDIO: media = Audio(file_name, file_hash, mime_subtype, utcnow())
+                case MIMEType.AUDIO: media = Audio(file_name, file, mime_subtype, utcnow())
                 case MIMEType.CHEMICAL: ...
                 case MIMEType.FONT: ...
-                case MIMEType.IMAGE: media = Image(file_name, file_hash, mime_subtype, utcnow())
-                case MIMEType.VIDEO: media = Video(file_name, file_hash, mime_subtype, utcnow())
+                case MIMEType.IMAGE: media = Image(file_name, file, mime_subtype, utcnow())
+                case MIMEType.VIDEO: media = Video(file_name, file, mime_subtype, utcnow())
             try:
                 session.add(media)
             finally:
