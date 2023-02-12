@@ -1,3 +1,74 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: auto 2.5%;
+}
+
+#fileLoadButton {
+    padding: 0;
+    border: none;
+    background: transparent;
+}
+
+#files {
+    margin: 0.5em auto;
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.5em;
+}
+
+#files > .file-container {
+    width: 100%;
+    display: grid;
+    grid-template-areas:
+        "link button"
+        "progress button";
+    grid-template-columns: 1fr min-content;
+    grid-template-rows: 1fr min-content;
+}
+
+.file-link {
+    grid-area: link;
+    align-self: center;
+    justify-self: start;
+}
+
+.file-container > .upload-cancel {
+    grid-area: button;
+}
+
+.file-container > button {
+    height: 2em;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+    place-self: center;
+}
+
+.copy-btn {
+    grid-area: button;
+}
+
+.upload-progress {
+    grid-area: progress;
+    width: 100%;
+}
+
+.upload-cancel > img {
+    height: 1em;
+    padding: 0;
+}
+
 progress::-webkit-progress-value.failed {
     background: red;
 }

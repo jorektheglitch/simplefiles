@@ -3,13 +3,17 @@
     <link id="styles" rel="stylesheet" type="text/css" href="./styles/index.css">
 </head>
 <body>
-    <div>
-        <button id="fileLoadButton" style="padding: 0; border: 0; grid-area: attach; background: inherit;">
-            <img src="./static/pictorgams/paper_clip.svg" style="height: 2em"></img>
-        </button>
-    </div>
-    <div id="filesList" hidden="true">
+    <div id="header">
         <!-- -->
+    </div>
+    <div class="container">
+        <button id="fileLoadButton">
+            <img src="./pictograms/upload_file.svg" style="height: 4em"></img>
+        </button>
+        <span style="align-self: center;" id="explanation">Click to load file</span>
+        <div id="files" hidden="true">
+            <!-- -->
+        </div>
     </div>
     <script src="./src/index.js"></script>
 </body>

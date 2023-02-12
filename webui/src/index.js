@@ -1,3 +1,6 @@
+const files = document.getElementById("files");
+const explanation = document.getElementById("explanation");
+
 function isObject(obj) {
 	return typeof obj === 'object' && obj !== null;
 };
@@ -25,29 +28,31 @@ function createElement(tagName, {classList, style, ...options} = {}) {
 
 document.getElementById("fileLoadButton").onclick = (click) => {
 	click.preventDefault();
-	const filesList = document.getElementById("filesList");
 	const form = document.createElement('form');
 	const file = document.createElement('input');
 	file.name = "file";
 	file.type = "file";
 	form.append(file);
 	file.onchange = (change) => {
+		explanation.remove();
 		const name = file.files[0].name;
 		const data = new FormData(form);
 		const xhr = new XMLHttpRequest();
-		const container = createElement('div', {class: 'attachment-container'});
-		const nameEl = createElement('h5', {class: 'attachment-name'} );
-		const progressEl = document.createElement('progress')
-		document.createElement('div').style.grid
-		const del = createElement('button', {class: 'attachment-delbtn'});
-		const delImage = createElement('img', {style: {height: '100%'}});
-		delImage.src = 'images/pictorgams/close.svg';
-		del.append(delImage);
-		nameEl.append(document.createTextNode(name));
-		container.append(nameEl, del, progressEl);
-		filesList.append(container);
-		filesList.hidden = false;
+		const container = createElement('div', {class: 'file-container'});
+		const progressEl = createElement('progress', {class: 'upload-progress'});
+		const cancelBtn = createElement('button', {class: 'upload-cancel'});
+		const cancelImage = createElement('img', {style: {height: '100%'}});
+		cancelImage.src = './pictograms/cancel.svg';
+		cancelBtn.append(cancelImage);
+		const fileLink = createElement("a", {class: 'file-link'});
+		fileLink.append(document.createTextNode(name));
+		container.append(fileLink, progressEl, cancelBtn);
+		files.append(container);
+		files.hidden = false;
 		xhr.open("POST", "/api/store");
+		cancelBtn.onclick = (click) => {
+			xhr.abort();
+		}
 		xhr.setRequestHeader('Authorization', `Bearer ${localStorage.getItem("token")}`);
 		xhr.upload.onprogress = (progress) => {
 			let {loaded, total} = progress;
@@ -63,14 +68,16 @@ document.getElementById("fileLoadButton").onclick = (click) => {
 				return;
 			}
 			const info = JSON.parse(xhr.response);
-			let ids = [];
-			if (attachments.value.trim())
-				ids = attachments.value.split(" ");
-			ids.push(info.file.id);
-			attachments.value = ids.join(" ");
+			fileLink.href = "./file.html#";
+			const copyBtn = createElement('button', {class: 'copy-btn'});
+			const copyImage = createElement('img', {style: {height: '100%'}});
+			copyImage.src = './pictograms/copy.svg';
+			copyBtn.append(copyImage);
+			cancelBtn.replaceWith(copyBtn)
 			progressEl.remove();
 		};
-		xhr.onerror = (event) => {
+		xhr.onerror = xhr.onabort = (event) => {
+			cancelBtn.remove();
             progressEl.classList.add("failed");
         };
 		xhr.send(data);
