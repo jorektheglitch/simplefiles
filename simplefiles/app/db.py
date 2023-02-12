@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import timedelta as td
 from pathlib import Path
-from typing import Any, ClassVar
+from typing import ClassVar
 
 from sqlalchemy import Column, ForeignKey, Table
 from sqlalchemy import CheckConstraint, ForeignKeyConstraint
@@ -147,7 +147,7 @@ videos = Table(
 class Media(entities.Media):
     __table__: ClassVar[Selectable] = medias
 
-    __mapper_args__: dict[str, Any] = {
+    __mapper_args__: ClassVar[dict[str, str | MIMEType]] = {
         # "polymorphic_identity": "medias",
         "polymorphic_on": "media_type",
     }
