@@ -1,4 +1,5 @@
 aiofiles==22.1.0
 aiohttp==3.8.3
 SQLAlchemy==2.0.1
+dataclass-factory==2.16
 tomlkit==0.11.6

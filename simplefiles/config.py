@@ -4,6 +4,11 @@ from dataclasses import dataclass
 
 from typing import Any, Mapping
 
+import dataclass_factory
+
+
+FACTORY = dataclass_factory.Factory()
+
 
 @dataclass
 class Config:
@@ -23,13 +28,5 @@ class DBOptions:
     pass
 
 
-def create_from_mapping(mapping: Mapping[str, Mapping[str, Any]]) -> Config:
-    app_config = mapping.get("app")
-    db_config = mapping.get("db")
-    if app_config is None:
-        raise ValueError("Missing 'app' key in config")
-    if db_config is None:
-        raise ValueError("Missing 'db' key in config")
-    app = ApplicationOptions(**app_config)
-    db = DBOptions(**db_config)
-    return Config(app, db)
+def create_from_mapping(mapping: Mapping[str, Any]) -> Config:
+    return FACTORY.load(mapping, Config)
