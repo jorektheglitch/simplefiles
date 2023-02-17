@@ -10,6 +10,7 @@ from typing import AsyncIterator, Awaitable, Callable, TypeVar
 
 import aiofiles
 from aiohttp import web
+from sqlalchemy.sql import text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
@@ -186,6 +187,7 @@ async def create_app(config: Config) -> web.Application:
     app = web.Application()
     engine = create_async_engine("sqlite+aiosqlite:///tmp/test.db")
     async with engine.begin() as conn:
+        await conn.execute(text("PRAGMA foreign_keys = 1"))
         await conn.run_sync(registry.metadata.create_all)
     sessions_factory = sessionmaker(engine, class_=AsyncSession)
     wrap = make_wrapper(sessions_factory)
