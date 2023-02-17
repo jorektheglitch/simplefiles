@@ -6,6 +6,7 @@ from typing import ClassVar
 from sqlalchemy import Column, ForeignKey, Table
 from sqlalchemy import CheckConstraint, ForeignKeyConstraint
 from sqlalchemy import DateTime, Enum, Integer, String
+from sqlalchemy import MetaData
 from sqlalchemy import orm
 from sqlalchemy import join
 from sqlalchemy.sql import Selectable
@@ -14,6 +15,15 @@ from sqlalchemy.engine import Dialect
 
 from simplefiles.core._types import AudiosMIME, ImagesMIME, VideosMIME, MIMEType
 from simplefiles.core import entities
+
+
+NAMING = {
+    'ix': 'index_%(table_name)s_%(column_0_N_name)s',
+    'uq': 'unique_%(table_name)s_%(column_0_N_name)s',
+    'ck': 'check_%(table_name)s_%(column_0_N_name)s',
+    'fk': 'foreign_%(table_name)s_%(column_0_N_name)s_%(referred_table_name)s_%(referred_column_0_N_name)s',
+    'pk': 'primary_%(table_name)s',
+}
 
 
 class FilePath(TypeDecorator[Path]):
@@ -70,7 +80,7 @@ class MediaResolution(TypeDecorator[entities.Resolution]):
         return entities.Resolution(width, height)
 
 
-registry = orm.registry()
+registry = orm.registry(metadata=MetaData(naming_convention=NAMING))
 
 
 file_infos = Table(
