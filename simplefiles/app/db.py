@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import timedelta as td
 from pathlib import Path
-from typing import ClassVar
+from typing import Any, ClassVar
 
 from sqlalchemy import Column, ForeignKey, Table
 from sqlalchemy import CheckConstraint, ForeignKeyConstraint
@@ -165,19 +165,22 @@ files = Table(
 
 @registry.mapped
 @dataclass
-class Media(entities.Media):
-    __table__: ClassVar[Selectable] = medias
-
-    __mapper_args__: ClassVar[dict[str, str | MIMEType]] = {
-        # "polymorphic_identity": "medias",
-        "polymorphic_on": "media_type",
-    }
+class FileInfo(entities.FileInfo):
+    __table__ = file_infos
 
 
 @registry.mapped
 @dataclass
-class FileInfo(entities.FileInfo):
-    __table__ = file_infos
+class Media(entities.Media):
+    __table__: ClassVar[Selectable] = medias
+
+    __mapper_args__: ClassVar[dict[str, Any]] = {  # type: ignore
+        # "polymorphic_identity": "medias",
+        "polymorphic_on": "media_type",
+        "properties": {
+            "info": orm.relationship(FileInfo)
+        },
+    }
 
 
 @registry.mapped
@@ -186,6 +189,9 @@ class Image(Media, entities.Image):
     __table__ = images
     __mapper_args__ = {
         "polymorphic_identity": MIMEType.IMAGE,
+        "properties": {
+            "info": orm.relationship(FileInfo)
+        },
     }
 
     @property
@@ -194,7 +200,6 @@ class Image(Media, entities.Image):
 
     def __post_init__(self) -> None:
         self.media_type = self.type
-        self.file_hash = self.info.hash
 
 
 @registry.mapped
@@ -203,11 +208,13 @@ class Audio(Media, entities.Audio):
     __table__ = audios
     __mapper_args__ = {
         "polymorphic_identity": MIMEType.AUDIO,
+        "properties": {
+            "info": orm.relationship(FileInfo)
+        },
     }
 
     def __post_init__(self) -> None:
         self.media_type = self.type
-        self.file_hash = self.info.hash
 
 
 @registry.mapped
@@ -216,6 +223,9 @@ class Video(Media, entities.Video):
     __table__ = videos
     __mapper_args__ = {
         "polymorphic_identity": MIMEType.VIDEO,
+        "properties": {
+            "info": orm.relationship(FileInfo)
+        },
     }
 
     @property
@@ -224,7 +234,6 @@ class Video(Media, entities.Video):
 
     def __post_init__(self) -> None:
         self.media_type = self.type
-        self.file_hash = self.info.hash
 
 
 @registry.mapped
@@ -233,8 +242,10 @@ class File(Media, entities.File):
     __table__ = files
     __mapper_args__ = {
         "polymorphic_identity": MIMEType.APPLICATION,
+        "properties": {
+            "info": orm.relationship(FileInfo)
+        },
     }
 
     def __post_init__(self) -> None:
         self.media_type = self.type
-        self.file_hash = self.info.hash
