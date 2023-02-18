@@ -151,6 +151,18 @@ videos = Table(
     )
 )
 
+files = Table(
+    "files",
+    registry.metadata,
+    Column("file_id", Integer, primary_key=True),
+    Column("media_type", Enum(MIMEType), default=MIMEType.APPLICATION),
+    Column("subtype", String),
+    ForeignKeyConstraint(
+        ("file_id", "media_type"),
+        (medias.c.media_id, medias.c.media_type)
+    ),
+)
+
 
 @registry.mapped
 @dataclass
@@ -210,6 +222,19 @@ class Video(Media, entities.Video):
     @property
     async def preview(self) -> entities.Preview:
         return None  # type: ignore
+
+    def __post_init__(self) -> None:
+        self.media_type = self.type
+        self.file_hash = self.info.hash
+
+
+@registry.mapped
+@dataclass
+class File(Media, entities.File):
+    __table__ = join(medias, files)
+    __mapper_args__ = {
+        "polymorphic_identity": MIMEType.APPLICATION,
+    }
 
     def __post_init__(self) -> None:
         self.media_type = self.type

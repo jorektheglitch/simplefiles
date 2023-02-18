@@ -18,7 +18,7 @@ from sqlalchemy.orm import sessionmaker
 from simplefiles.config import Config
 from simplefiles.core import entities
 from simplefiles.core.entities import TempFile, MIMEType, MIMESubtype, AudiosMIME, ImagesMIME, VideosMIME
-from .db import Audio, Image, Video, FileInfo
+from .db import Audio, Image, Video, File, FileInfo
 from .db import registry
 
 
@@ -166,10 +166,10 @@ async def store(request: web.Request, session: AsyncSession) -> web.StreamRespon
                 file = await session.get(FileInfo, file_hash)  # type: ignore
             media: entities.Media
             match mime_type:
-                case MIMEType.APPLICATION: ...
+                case MIMEType.APPLICATION: media = File(file_name, file, mime_subtype, utcnow())
                 case MIMEType.AUDIO: media = Audio(file_name, file, mime_subtype, utcnow())
-                case MIMEType.CHEMICAL: ...
-                case MIMEType.FONT: ...
+                case MIMEType.CHEMICAL: media = File(file_name, file, mime_subtype, utcnow())
+                case MIMEType.FONT: media = File(file_name, file, mime_subtype, utcnow())
                 case MIMEType.IMAGE: media = Image(file_name, file, mime_subtype, utcnow())
                 case MIMEType.VIDEO: media = Video(file_name, file, mime_subtype, utcnow())
             try:

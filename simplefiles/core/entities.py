@@ -68,7 +68,8 @@ class Audio(Media):
 
 
 class File(Media):
-    pass
+    type: ClassVar[Literal[MIMEType.APPLICATION]] = MIMEType.APPLICATION
+    subtype: str
 
 
 @dataclass
