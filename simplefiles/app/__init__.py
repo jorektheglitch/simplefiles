@@ -12,8 +12,8 @@ import aiofiles
 from aiohttp import web
 from sqlalchemy.sql import text
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import joinedload
 
 from simplefiles.config import Config
 from simplefiles.core import entities
@@ -98,7 +98,7 @@ def redirect(target: str) -> Callable[[web.Request], Awaitable[web.StreamRespons
 
 
 def make_wrapper(
-    sessionmaker: sessionmaker[AsyncSession]
+    sessionmaker: async_sessionmaker[AsyncSession],
 ) -> Callable[
     [Callable[[web.Request, AsyncSession], Awaitable[web.StreamResponse]]],
     Callable[[web.Request], Awaitable[web.StreamResponse]]
@@ -189,7 +189,7 @@ async def create_app(config: Config) -> web.Application:
     async with engine.begin() as conn:
         await conn.execute(text("PRAGMA foreign_keys = 1"))
         await conn.run_sync(registry.metadata.create_all)
-    sessions_factory = sessionmaker(engine, class_=AsyncSession)
+    sessions_factory = async_sessionmaker(engine, class_=AsyncSession)
     wrap = make_wrapper(sessions_factory)
     static_dir = Path.cwd() / "webui"
     app.router.add_get("/", redirect("/index.html"))
