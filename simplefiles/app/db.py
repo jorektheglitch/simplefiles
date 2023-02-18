@@ -8,7 +8,6 @@ from sqlalchemy import CheckConstraint, ForeignKeyConstraint
 from sqlalchemy import DateTime, Enum, Integer, String
 from sqlalchemy import MetaData
 from sqlalchemy import orm
-from sqlalchemy import join
 from sqlalchemy.sql import Selectable
 from sqlalchemy.types import TypeDecorator
 from sqlalchemy.engine import Dialect
@@ -184,7 +183,7 @@ class FileInfo(entities.FileInfo):
 @registry.mapped
 @dataclass
 class Image(Media, entities.Image):
-    __table__ = join(medias, images)
+    __table__ = images
     __mapper_args__ = {
         "polymorphic_identity": MIMEType.IMAGE,
     }
@@ -201,7 +200,7 @@ class Image(Media, entities.Image):
 @registry.mapped
 @dataclass
 class Audio(Media, entities.Audio):
-    __table__ = join(medias, audios)
+    __table__ = audios
     __mapper_args__ = {
         "polymorphic_identity": MIMEType.AUDIO,
     }
@@ -214,7 +213,7 @@ class Audio(Media, entities.Audio):
 @registry.mapped
 @dataclass
 class Video(Media, entities.Video):
-    __table__ = join(medias, videos)
+    __table__ = videos
     __mapper_args__ = {
         "polymorphic_identity": MIMEType.VIDEO,
     }
@@ -231,7 +230,7 @@ class Video(Media, entities.Video):
 @registry.mapped
 @dataclass
 class File(Media, entities.File):
-    __table__ = join(medias, files)
+    __table__ = files
     __mapper_args__ = {
         "polymorphic_identity": MIMEType.APPLICATION,
     }
