@@ -5,6 +5,10 @@ html, body {
     height: 100%;
 }
 
+body {
+    font-family: Montserrat, Segoe UI, Roboto, Arial, sans-serif;
+}
+
 .container {
     height: 100%;
     display: flex;
@@ -28,18 +32,25 @@ html, body {
 
 #files > .file-container {
     width: 100%;
+    padding: 0.5em;
+    align-self: center;
     display: grid;
     grid-template-areas:
-        "link button"
-        "progress button";
-    grid-template-columns: 1fr min-content;
+        "details-btns link button"
+        "details-btns progress button"
+        "nothing details empty";
+    grid-template-columns: min-content 1fr min-content;
     grid-template-rows: 1fr min-content;
+    column-gap: 0.5em;
+    border: 2px #ccc solid;
+    border-radius: 0.25em;
 }
 
 .file-link {
     grid-area: link;
     align-self: center;
     justify-self: start;
+    text-decoration: none;
 }
 
 .file-container > .upload-cancel {
@@ -48,14 +59,15 @@ html, body {
 
 .file-container > button {
     height: 2em;
-    padding: 0;
     margin: 0;
-    border: none;
+    padding: 0 0 0 0.5em;
     background: transparent;
     place-self: center;
+    border: none;
+    border-left: 2px #ccc solid;
 }
 
-.copy-btn {
+.copy-btn, .retry-btn {
     grid-area: button;
 }
 
@@ -68,13 +80,60 @@ html, body {
     height: 1em;
     padding: 0;
 }
+.details-btns {
+    display: flex;
+    place-self: center;
+    grid-area: details-btns;
+}
 
-progress::-webkit-progress-value.failed {
-    background: red;
+.details-btns > button {
+    padding: 0;
+    margin: auto;
+    border: none;
+    height: 2em;
+    background: transparent;
 }
-progress::-moz-progress-bar.failed {
-    background: red;
+
+.details {
+    margin-top: 0.5em;
+    grid-area: details;
 }
-progress.failed {
-    color: red;
+
+span.error {
+    background-color: darksalmon;
+    border-radius: 0.25em;
+    font-weight: bold;
+}
+
+.upload-progress > progress {
+    height: 0.25em;
+    border-radius: 0.125em;
+}
+.upload-progress > progress[value]::-webkit-progress-bar {
+    border-radius: 0.125em;
+    background-color: #bbb;
+}
+.upload-progress > progress[value]::-webkit-progress-value {
+    border-radius: 0.125em;
+    background-color: cornflowerblue;
+}
+.upload-progress > progress[value].failed::-moz-progress-value {
+    border-radius: 0.125em;
+    background-color: cornflowerblue;
+}
+.upload-progress > progress[value] {
+    border-radius: 0.125em;
+    background-color: cornflowerblue;
+}
+.upload-progress > progress[value].failed::-webkit-progress-value {
+    border-radius: 0.125em;
+    background-color: red;
+}
+.upload-progress > progress[value].failed::-moz-progress-value {
+    border-radius: 0.125em;
+    background-color: red;
+}
+.upload-progress > progress[value].failed {
+    border-radius: 0.125em;
+    background-color: red;
 }
