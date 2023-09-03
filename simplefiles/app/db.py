@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import timedelta as td
 from pathlib import Path
 from typing import Any, ClassVar
@@ -172,6 +172,8 @@ class FileInfo(entities.FileInfo):
 @registry.mapped
 @dataclass
 class Media(entities.Media):
+    media_id: int = field(init=False)
+
     __table__: ClassVar[Selectable] = medias
 
     __mapper_args__: ClassVar[dict[str, Any]] = {  # type: ignore
