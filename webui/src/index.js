@@ -26,6 +26,17 @@ function createElement(tagName, {classList, style, ...options} = {}) {
 	return el;
 };
 
+function getRetryButton(onclick) {
+	const retryBtn = createElement('button', {class: 'retry-btn'});
+	const retryImage = createElement('img', {style: {height: '100%'}});
+	retryImage.src = './pictograms/retry.svg';
+	retryBtn.append(retryImage);
+	if (onclick) {
+		retryBtn.onclick = onclick;
+	};
+	return retryBtn;
+}
+
 document.getElementById("fileLoadButton").onclick = (click) => {
 	click.preventDefault();
 	const form = document.createElement('form');
@@ -64,6 +75,8 @@ document.getElementById("fileLoadButton").onclick = (click) => {
 		xhr.onload = (event) => {
 			if (xhr.status!=200) {
 				console.error(`File load request failed with status ${xhr.status} (${xhr.statusText})`);
+				const retryBtn = getRetryButton();
+				cancelBtn.replaceWith(retryBtn);
                 progressEl.classList.add("failed");
 				return;
 			}
@@ -73,11 +86,12 @@ document.getElementById("fileLoadButton").onclick = (click) => {
 			const copyImage = createElement('img', {style: {height: '100%'}});
 			copyImage.src = './pictograms/copy.svg';
 			copyBtn.append(copyImage);
-			cancelBtn.replaceWith(copyBtn)
+			cancelBtn.replaceWith(copyBtn);
 			progressEl.remove();
 		};
 		xhr.onerror = xhr.onabort = (event) => {
-			cancelBtn.remove();
+			const retryBtn = getRetryButton();
+			cancelBtn.replaceWith(retryBtn);
             progressEl.classList.add("failed");
         };
 		xhr.send(data);
