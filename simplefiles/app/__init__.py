@@ -172,6 +172,7 @@ async def store(request: web.Request, session: AsyncSession) -> web.StreamRespon
                 case MIMEType.FONT: media = File(file_name, file, mime_subtype, utcnow())
                 case MIMEType.IMAGE: media = Image(file_name, file, mime_subtype, utcnow())
                 case MIMEType.VIDEO: media = Video(file_name, file, mime_subtype, utcnow())
+                case _: media = File(file_name, file, mime_subtype, utcnow())
             try:
                 session.add(media)
             finally:
