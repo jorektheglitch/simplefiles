@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 
 from aiohttp import web
@@ -27,6 +28,7 @@ if __name__ == "__main__":
     config_path: Path | None = args.config
     if not config_path:
         parser.print_help()
+        sys.exit(0)
     with config_path.open() as config_file:
         config_toml = tomlkit.load(config_file)
     config = create_from_mapping(config_toml)
