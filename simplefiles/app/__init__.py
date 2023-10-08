@@ -67,7 +67,10 @@ class MaterialTempFile(TempFile):
         await self._file.close()
 
     async def materialize(self, path: str | Path, exists_ok: bool = False) -> None:
-        pass
+        target_path = Path(path)
+        if target_path.exists() and not exists_ok:
+            raise RuntimeError
+        self._path.rename(path)
 
 
 _MTF = TypeVar("_MTF", bound=MaterialTempFile)
