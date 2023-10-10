@@ -36,9 +36,9 @@ body {
     align-self: center;
     display: grid;
     grid-template-areas:
-        "details-btns link button"
-        "details-btns progress button"
-        "nothing details empty";
+        "details-btns  link      link     button"
+        "details-btns  progress  speed    button"
+        "nothing       details   details  empty";
     grid-template-columns: min-content 1fr min-content;
     grid-template-rows: 1fr min-content;
     column-gap: 0.5em;

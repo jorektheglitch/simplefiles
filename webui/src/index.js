@@ -1,6 +1,36 @@
 const files = document.getElementById("files");
 const explanation = document.getElementById("explanation");
 
+const _SIZES = [
+	['',  10**0],
+
+	['k', 10**3],
+	['M', 10**6],
+	['G', 10**9],
+	['T', 10**12],
+	['P', 10**15],
+	['E', 10**18],
+	['Z', 10**21],
+	['Y', 10**24],
+	['R', 10**27],
+	['Q', 10**30]
+];
+
+function asHumanReadable(value, unit, precision = 2) {
+	let size = value;
+	let unitPrefix = '';
+	for (let [prefix, divisor] of _SIZES) {
+		size = value / divisor;
+		if (size < 1000) {
+			unitPrefix = prefix;
+			break;
+		};
+	};
+	let precisionDivisor = 10**precision;
+	size = Math.ceil(size * precisionDivisor) / precisionDivisor;
+	return `${size}${unitPrefix}${unit}`;
+}
+
 function isObject(obj) {
 	return typeof obj === 'object' && obj !== null;
 };
@@ -51,13 +81,14 @@ document.getElementById("fileLoadButton").onclick = (click) => {
 		const xhr = new XMLHttpRequest();
 		const container = createElement('div', {class: 'file-container'});
 		const progressEl = createElement('progress', {class: 'upload-progress'});
+		const speedEl = createElement('pre', {style: {'grid-area': 'speed'}});
 		const cancelBtn = createElement('button', {class: 'upload-cancel'});
 		const cancelImage = createElement('img', {style: {height: '100%'}});
 		cancelImage.src = './pictograms/cancel.svg';
 		cancelBtn.append(cancelImage);
 		const fileLink = createElement("a", {class: 'file-link'});
 		fileLink.append(document.createTextNode(name));
-		container.append(fileLink, progressEl, cancelBtn);
+		container.append(fileLink, progressEl, speedEl, cancelBtn);
 		files.append(container);
 		files.hidden = false;
 		xhr.open("POST", "/api/store");
@@ -66,11 +97,18 @@ document.getElementById("fileLoadButton").onclick = (click) => {
 		}
 		xhr.setRequestHeader('Authorization', `Bearer ${localStorage.getItem("token")}`);
 		xhr.upload.onprogress = (progress) => {
-			let {loaded, total} = progress;
+			const {loaded, total} = progress;
 			progressEl.max = total;
 			progressEl.value = loaded;
+			const currentTime = new Date();
+			const timeDeltaMs = currentTime - lastActve;
+			const loadedDelta = loaded - lastLoaded;
+			const speed = loadedDelta*1000 / timeDeltaMs;
+			speedEl.innerHTML = asHumanReadable(speed, 'B/s');
 			//let percents = (loaded/total*100).toFixed(2);
 			//console.log(`Loaded ${percents}% (${loaded}/${total})`);
+			lastActve = currentTime;
+			lastLoaded = loaded;
 		};
 		xhr.onload = (event) => {
 			if (xhr.status!=200) {
@@ -88,12 +126,16 @@ document.getElementById("fileLoadButton").onclick = (click) => {
 			copyBtn.append(copyImage);
 			cancelBtn.replaceWith(copyBtn);
 			progressEl.remove();
+			speedEl.remove();
 		};
 		xhr.onerror = xhr.onabort = (event) => {
 			const retryBtn = getRetryButton();
 			cancelBtn.replaceWith(retryBtn);
             progressEl.classList.add("failed");
+			speedEl.remove();
         };
+		let lastActve = new Date();
+		let lastLoaded = 0;
 		xhr.send(data);
 	};
 	file.click();
