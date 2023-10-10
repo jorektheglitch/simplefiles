@@ -187,6 +187,28 @@ async def store(request: web.Request, session: AsyncSession) -> web.StreamRespon
     return web.json_response({})
 
 
+async def show(request: web.Request, session: AsyncSession) -> web.StreamResponse:
+    data = await request.json()
+    if not isinstance(data, dict):
+        raise web.HTTPBadRequest()
+    id = data.get("id")
+    if not isinstance(id, int):
+        raise web.HTTPBadRequest()
+    media_info = await session.get(Media, id)
+    if media_info is None:
+        raise web.HTTPNotFound()
+    media: Media | None
+    match media_info.type:
+        case MIMEType.AUDIO: media = await session.get(Audio, id)
+        case MIMEType.IMAGE: media = await session.get(Image, id)
+        case MIMEType.VIDEO: media = await session.get(Video, id)
+        case _: media = await session.get(File, id)
+    if media is None:
+        raise web.HTTPNotFound()
+    info = dataclasses.asdict(media)
+    return web.json_response(info)
+
+
 async def create_app(config: Config) -> web.Application:
     app = web.Application()
     engine = create_async_engine("sqlite+aiosqlite:///tmp/test.db")
@@ -199,4 +221,5 @@ async def create_app(config: Config) -> web.Application:
     app.router.add_get("/", redirect("/index.html"))
     app.router.add_static("/", static_dir)
     app.router.add_post("/api/store", wrap(store))
+    app.router.add_get("/api/show", wrap(show))
     return app
