@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from enum import Enum
+from enum import StrEnum
 
 from typing import Any, Generic, Literal, Protocol, TypeVar, Union
 from typing import Awaitable, AsyncIterator, Generator, Iterable, Sequence
@@ -16,7 +16,7 @@ Owner_co = TypeVar('Owner_co', covariant=True)
 JSON = str | int | float | list["JSON"] | dict[str, "JSON"] | None
 
 
-class MIMEType(Enum):
+class MIMEType(StrEnum):
     APPLICATION = "application"
     AUDIO = "audio"
     CHEMICAL = "chemical"
@@ -27,7 +27,7 @@ class MIMEType(Enum):
     VIDEO = "video"
 
 
-class ImagesMIME(Enum):
+class ImagesMIME(StrEnum):
     GIF = "gif"                        # GIF (RFC 2045 and RFC 2046)
     JPEG = "jpeg"                      # JPEG (RFC 2045 and RFC 2046)
     PJPEG = "pjpeg"                    # JPEG
@@ -39,7 +39,7 @@ class ImagesMIME(Enum):
     WEBP = "webp"                      # WebP
 
 
-class VideosMIME(Enum):
+class VideosMIME(StrEnum):
     MPEG = "mpeg"                      # MPEG-1 (RFC 2045 and RFC 2046)
     MP4 = "mp4"                        # MP4 (RFC 4337)
     OGG = "ogg"                        # Ogg Theora or other (RFC 5334)
@@ -52,7 +52,7 @@ class VideosMIME(Enum):
     ThirdGPP2 = "3gpp2"                # .3gpp2 .3g2
 
 
-class AudiosMIME(Enum):
+class AudiosMIME(StrEnum):
     BASIC = "basic"                    # mulaw, 8 KHz, 1 ch (RFC 2046)
     L24 = "L24"                        # 24bit Linear PCM, 8-48 KHz, 1-N ch (RFC 3190)
     MP4 = "mp4"                        # MP4
