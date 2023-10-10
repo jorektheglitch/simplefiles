@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import dataclasses
 import hashlib
 import uuid
 from contextlib import asynccontextmanager
@@ -18,7 +19,7 @@ from sqlalchemy.orm import joinedload
 from simplefiles.config import Config
 from simplefiles.core import entities
 from simplefiles.core.entities import TempFile, MIMEType, MIMESubtype, AudiosMIME, ImagesMIME, VideosMIME
-from .db import Audio, Image, Video, File, FileInfo
+from .db import Audio, Image, Video, File, FileInfo, Media
 from .db import registry
 
 
@@ -209,6 +210,45 @@ async def show(request: web.Request, session: AsyncSession) -> web.StreamRespons
     return web.json_response(info)
 
 
+async def download(request: web.Request, session: AsyncSession) -> web.StreamResponse:
+    data = request.query
+    id_raw = data.get("id")
+    if id_raw is None:
+        raise web.HTTPBadRequest()
+    try:
+        id = int(id_raw)
+    except ValueError:
+        raise web.HTTPBadRequest()
+    media_info = await session.get(Media, id)
+    if media_info is None:
+        raise web.HTTPNotFound()
+    media: Media | None
+    match media_info.type:
+        case MIMEType.AUDIO: media = await session.get(Audio, id)
+        case MIMEType.IMAGE: media = await session.get(Image, id)
+        case MIMEType.VIDEO: media = await session.get(Video, id)
+        case _: media = await session.get(File, id)
+    if media is None:
+        raise web.HTTPNotFound()
+    file_path = Path.cwd() / "tmp" / media.info.hash
+    response = web.StreamResponse(
+        status=200,
+        headers={
+            "Content-Disposition": f"attachment; filename={media.name}",
+            "Content-Type": f"{media.type}/{media.subtype}",
+            "Content-Length": str(media.info.size),
+        },
+    )
+    await response.prepare(request)
+    CHUNK_SIZE = 64*1024
+    async with aiofiles.open(file_path, "rb") as file:
+        chunk = await file.read(CHUNK_SIZE)
+        while chunk:
+            await response.write(chunk)
+            chunk = await file.read(CHUNK_SIZE)
+    return response
+
+
 async def create_app(config: Config) -> web.Application:
     app = web.Application()
     engine = create_async_engine("sqlite+aiosqlite:///tmp/test.db")
@@ -222,4 +262,5 @@ async def create_app(config: Config) -> web.Application:
     app.router.add_static("/", static_dir)
     app.router.add_post("/api/store", wrap(store))
     app.router.add_get("/api/show", wrap(show))
+    app.router.add_get("/api/download", wrap(download))
     return app
